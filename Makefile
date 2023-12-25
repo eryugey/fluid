@@ -3,7 +3,8 @@ CRD_OPTIONS ?= "crd"
 
 # The Image URL to use in docker build and push
 # IMG_REPO ?= registry.aliyuncs.com/fluid
-IMG_REPO ?= fluidcloudnative
+#IMG_REPO ?= fluidcloudnative
+IMG_REPO ?= eci-nydus-registry.cn-hangzhou.cr.aliyuncs.com/fluid
 DATASET_CONTROLLER_IMG ?= ${IMG_REPO}/dataset-controller
 APPLICATION_CONTROLLER_IMG ?= ${IMG_REPO}/application-controller
 ALLUXIORUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/alluxioruntime-controller
