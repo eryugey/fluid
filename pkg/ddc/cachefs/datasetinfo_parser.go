@@ -1,0 +1,57 @@
+/*
+Copyright 2023 The Fluid Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package cachefs
+
+import (
+	"fmt"
+
+	"github.com/pkg/errors"
+	v1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/yaml"
+
+	"github.com/fluid-cloudnative/fluid/pkg/utils/kubeclient"
+)
+
+// GetCacheInfoFromConfigmap get cache info from configmap
+func GetCacheInfoFromConfigmap(client client.Client, name string, namespace string) (cacheinfo map[string]string, err error) {
+	configMapName := fmt.Sprintf("%s-cachefs-values", name)
+	configMap, err := kubeclient.GetConfigmapByName(client, configMapName, namespace)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetConfigMapByName error when GetCacheInfoFromConfigmap")
+	}
+
+	cacheinfo, err = parseCacheInfoFromConfigMap(configMap)
+	if err != nil {
+		return nil, errors.Wrap(err, "parsePortsFromConfigMap when GetReservedPorts")
+	}
+
+	return cacheinfo, nil
+}
+
+// parseCacheInfoFromConfigMap extracts port usage information given a configMap
+func parseCacheInfoFromConfigMap(configMap *v1.ConfigMap) (cacheinfo map[string]string, err error) {
+	var value CacheFS
+	configmapinfo := map[string]string{}
+	if v, ok := configMap.Data["data"]; ok {
+		if err := yaml.Unmarshal([]byte(v), &value); err != nil {
+			return nil, err
+		}
+		configmapinfo[MountPath] = value.Fuse.MountPath
+	}
+	return configmapinfo, nil
+}

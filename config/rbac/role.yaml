@@ -28,6 +28,26 @@ rules:
 - apiGroups:
   - data.fluid.io
   resources:
+  - cachefsruntimes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - data.fluid.io
+  resources:
+  - cachefsruntimes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - data.fluid.io
+  resources:
   - dataprocesses
   verbs:
   - create

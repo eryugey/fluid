@@ -12,6 +12,7 @@ GOOSEFSRUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/goosefsruntime-controller
 JUICEFSRUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/juicefsruntime-controller
 THINRUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/thinruntime-controller
 EFCRUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/efcruntime-controller
+CACHEFSRUNTIME_CONTROLLER_IMG ?= ${IMG_REPO}/cachefsruntime-controller
 CSI_IMG ?= ${IMG_REPO}/fluid-csi
 LOADER_IMG ?= ${IMG_REPO}/fluid-dataloader
 INIT_USERS_IMG ?= ${IMG_REPO}/init-users
@@ -54,6 +55,7 @@ BINARY_BUILD += jindoruntime-controller-build
 BINARY_BUILD += juicefsruntime-controller-build
 BINARY_BUILD += thinruntime-controller-build
 BINARY_BUILD += efcruntime-controller-build
+BINARY_BUILD += cachefsruntime-controller-build
 BINARY_BUILD += csi-build
 BINARY_BUILD += webhook-build
 
@@ -68,6 +70,7 @@ DOCKER_BUILD += docker-build-webhook
 DOCKER_BUILD += docker-build-juicefsruntime-controller
 DOCKER_BUILD += docker-build-thinruntime-controller
 DOCKER_BUILD += docker-build-efcruntime-controller
+DOCKER_BUILD += docker-build-cachefsruntime-controller
 DOCKER_BUILD += docker-build-init-users
 DOCKER_BUILD += docker-build-crd-upgrader
 
@@ -82,6 +85,7 @@ DOCKER_PUSH += docker-push-goosefsruntime-controller
 DOCKER_PUSH += docker-push-juicefsruntime-controller
 DOCKER_PUSH += docker-push-thinruntime-controller
 DOCKER_PUSH += docker-push-efcruntime-controller
+DOCKER_PUSH += docker-push-cachefsruntime-controller
 # Not need to push init-users image by default
 # DOCKER_PUSH += docker-push-init-users
 DOCKER_PUSH += docker-push-crd-upgrader
@@ -97,6 +101,7 @@ DOCKER_BUILDX_PUSH += docker-buildx-push-webhook
 DOCKER_BUILDX_PUSH += docker-buildx-push-juicefsruntime-controller
 DOCKER_BUILDX_PUSH += docker-buildx-push-thinruntime-controller
 DOCKER_BUILDX_PUSH += docker-buildx-push-efcruntime-controller
+DOCKER_BUILDX_PUSH += docker-buildx-push-cachefsruntime-controller
 DOCKER_BUILDX_PUSH += docker-buildx-push-init-users
 DOCKER_BUILDX_PUSH += docker-buildx-push-crd-upgrader
 
@@ -177,6 +182,9 @@ thinruntime-controller-build:
 efcruntime-controller-build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=${GO_MODULE}  go build ${GC_FLAGS} -a -o bin/efcruntime-controller -ldflags '${LDFLAGS}' cmd/efc/main.go
 
+cachefsruntime-controller-build:
+	CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=${GO_MODULE}  go build ${GC_FLAGS} -a -o bin/cachefsruntime-controller -ldflags '-s -w ${LDFLAGS}' cmd/cachefs/main.go
+
 webhook-build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=${GO_MODULE}  go build ${GC_FLAGS} -a -o bin/fluid-webhook -ldflags '${LDFLAGS}' cmd/webhook/main.go
 
@@ -207,6 +215,9 @@ docker-build-thinruntime-controller:
 
 docker-build-efcruntime-controller:
 	docker build --no-cache --build-arg TARGETARCH=${ARCH} . -f docker/Dockerfile.efcruntime -t ${EFCRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
+
+docker-build-cachefsruntime-controller:
+	docker build --no-cache --build-arg TARGETARCH=${ARCH} . -f docker/Dockerfile.cachefsruntime -t ${CACHEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-build-csi:
 	docker build --no-cache . -f docker/Dockerfile.csi -t ${CSI_IMG}:${GIT_VERSION}
@@ -244,6 +255,9 @@ docker-push-thinruntime-controller: docker-build-thinruntime-controller
 
 docker-push-efcruntime-controller: docker-build-efcruntime-controller
 	docker push ${EFCRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
+
+docker-push-cachefsruntime-controller: docker-build-cachefsruntime-controller
+	docker push ${CACHEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-push-csi: docker-build-csi
 	docker push ${CSI_IMG}:${GIT_VERSION}
@@ -284,6 +298,9 @@ docker-buildx-push-thinruntime-controller:
 
 docker-buildx-push-efcruntime-controller:
 	docker buildx build --push --platform linux/amd64,linux/arm64 --no-cache . -f docker/Dockerfile.efcruntime -t ${EFCRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
+
+docker-buildx-push-cachefsruntime-controller:
+	docker buildx build --push --platform linux/amd64,linux/arm64 --no-cache . -f docker/Dockerfile.cachefsruntime -t ${CACHEFSRUNTIME_CONTROLLER_IMG}:${GIT_VERSION}
 
 docker-buildx-push-csi: generate fmt vet
 	docker buildx build --push --platform linux/amd64,linux/arm64 --no-cache . -f docker/Dockerfile.csi -t ${CSI_IMG}:${GIT_VERSION}
