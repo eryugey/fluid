@@ -65,6 +65,7 @@ rules:
       - thinruntimes
       - efcruntimes
       - vineyardruntimes
+      - cachefsruntimes
     verbs:
       - get
       - list

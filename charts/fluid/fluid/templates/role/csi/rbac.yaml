@@ -20,6 +20,7 @@ rules:
       - efcruntimes
       - datasets
       - vineyardruntimes
+      - cachefsruntimes
       - alluxioruntimes/status
       - jindoruntimes/status
       - goosefsruntimes/status
@@ -28,6 +29,7 @@ rules:
       - efcruntimes/status
       - datasets/status
       - vineyardruntimes/status
+      - cachefsruntimes/status
     verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources: ["persistentvolumes"]

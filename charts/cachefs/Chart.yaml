@@ -1,0 +1,10 @@
+name: cachefs
+apiVersion: v1
+description: File system that cache & accelerate any POSIX directory with distributed cache
+version: 0.1.0
+appVersion: v1.0.0
+maintainers:
+- name: Eryu Guan
+  email: eguan@linux.alibaba.com
+- name: Qinqi Qu
+  email: quqinqi@linux.alibaba.com
