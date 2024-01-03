@@ -162,3 +162,16 @@ func GetVineyardRuntime(client client.Client, name, namespace string) (*data.Vin
 
 	return &vineyardRuntime, nil
 }
+
+// GetCacheFSRuntime gets CacheFS Runtime object with the given name and namespace
+func GetCacheFSRuntime(client client.Client, name, namespace string) (*data.CacheFSRuntime, error) {
+	key := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+	var runtime data.CacheFSRuntime
+	if err := client.Get(context.TODO(), key, &runtime); err != nil {
+		return nil, err
+	}
+	return &runtime, nil
+}

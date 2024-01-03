@@ -289,6 +289,8 @@ func (o *OperationReconciler) getRuntimeObjectAndEngineImpl(runtimeType, name, n
 		runtime, err = utils.GetThinRuntime(o.Client, name, namespace)
 	case common.VineyardRuntime:
 		runtime, err = utils.GetVineyardRuntime(o.Client, name, namespace)
+	case common.CacheFSRuntime:
+		runtime, err = utils.GetCacheFSRuntime(o.Client, name, namespace)
 	}
 
 	if err != nil {
@@ -315,6 +317,8 @@ func (o *OperationReconciler) getRuntimeObjectAndEngineImpl(runtimeType, name, n
 		return runtime, ddc.InferEngineImpl(*runtime.GetStatus(), common.EFCEngineImpl), nil
 	case common.VineyardRuntime:
 		return runtime, ddc.InferEngineImpl(*runtime.GetStatus(), common.VineyardEngineImpl), nil
+	case common.CacheFSRuntime:
+		return runtime, ddc.InferEngineImpl(*runtime.GetStatus(), common.CacheFSEngineImpl), nil
 	}
 
 	err = fmt.Errorf("runtimeType %s is not supported", runtimeType)

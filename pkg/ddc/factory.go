@@ -20,6 +20,7 @@ import (
 	"github.com/fluid-cloudnative/fluid/pkg/controllers/deploy"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/alluxio"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/base"
+	"github.com/fluid-cloudnative/fluid/pkg/ddc/cachefs"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/efc"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/goosefs"
 	"github.com/fluid-cloudnative/fluid/pkg/ddc/jindo"
@@ -49,6 +50,7 @@ func init() {
 		common.ThinEngineImpl:       thin.Build,
 		common.EFCEngineImpl:        efc.Build,
 		common.VineyardEngineImpl:   vineyard.Build,
+		common.CacheFSEngineImpl:    cachefs.Build,
 	}
 
 	deploy.SetPrecheckFunc(map[string]deploy.CheckFunc{
@@ -59,6 +61,7 @@ func init() {
 		"thinruntime-controller":     thin.Precheck,
 		"efcruntime-controller":      efc.Precheck,
 		"vineyardruntime-controller": vineyard.Precheck,
+		"cachefsruntime-controller":  cachefs.Precheck,
 	})
 }
 

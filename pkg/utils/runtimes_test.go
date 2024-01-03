@@ -472,3 +472,62 @@ func TestGetEFCRuntime(t *testing.T) {
 		}
 	}
 }
+
+func TestGetCacheFSRuntime(t *testing.T) {
+	runtimeNamespace := "default"
+	runtimeName := "cachefs-runtime-1"
+	cachefsRuntime := &datav1alpha1.CacheFSRuntime{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      runtimeName,
+			Namespace: runtimeNamespace,
+		},
+	}
+
+	s := runtime.NewScheme()
+	s.AddKnownTypes(datav1alpha1.GroupVersion, cachefsRuntime)
+
+	fakeClient := fake.NewFakeClientWithScheme(s, cachefsRuntime)
+
+	tests := []struct {
+		name      string
+		namespace string
+		wantName  string
+		notFound  bool
+	}{
+		{
+			name:      runtimeName,
+			namespace: runtimeNamespace,
+			wantName:  runtimeName,
+			notFound:  false,
+		},
+		{
+			name:      runtimeName + "not-exist",
+			namespace: runtimeNamespace,
+			wantName:  "",
+			notFound:  true,
+		},
+		{
+			name:      runtimeName,
+			namespace: runtimeNamespace + "not-exist",
+			wantName:  "",
+			notFound:  true,
+		},
+	}
+
+	for k, item := range tests {
+		gotRuntime, err := GetCacheFSRuntime(fakeClient, item.name, item.namespace)
+		if item.notFound {
+			if err == nil || gotRuntime != nil {
+				t.Errorf("%d check failure, want to got nil", k)
+			} else {
+				if !apierrs.IsNotFound(err) {
+					t.Errorf("%d check failure, want notFound err but got %s", k, err)
+				}
+			}
+		} else {
+			if gotRuntime.Name != item.wantName {
+				t.Errorf("%d check failure, got CacheFSRuntime name: %s, want name: %s", k, gotRuntime.Name, item.wantName)
+			}
+		}
+	}
+}
