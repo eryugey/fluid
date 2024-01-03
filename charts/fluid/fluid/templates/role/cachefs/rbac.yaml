@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: thinruntime-controller
+  name: cachefsruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -22,7 +22,6 @@ rules:
     - watch
     - create
     - update
-    - patch
     - delete
   - apiGroups:
     - ""
@@ -34,7 +33,6 @@ rules:
     - watch
     - create
     - update
-    - patch
     - delete
   - apiGroups:
     - ""
@@ -53,6 +51,7 @@ rules:
     verbs:
     - get
     - list
+    - create
     - watch
   - apiGroups:
     - ""
@@ -60,6 +59,8 @@ rules:
     - pods/exec
     verbs:
     - create
+    - get
+    - list
   - apiGroups:
     - ""
     resources:
@@ -90,18 +91,10 @@ rules:
   - apiGroups:
       - data.fluid.io
     resources:
-      - alluxioruntimes
-      - jindoruntimes
-      - juicefsruntimes
-      - goosefsruntimes
-      - efcruntimes
-      - thinruntimes
-      - thinruntimeprofiles
-      - datasets
-      - thinruntimes/status
-      - thinruntimeprofiles/status
-      - datasets/status
       - cachefsruntimes
+      - datasets
+      - cachefsruntimes/status
+      - datasets/status
     verbs:
       - '*'
   - apiGroups:
@@ -116,8 +109,8 @@ rules:
   - apiGroups:
       - rbac.authorization.k8s.io
     resources:
-      - clusterroles
-      - clusterrolebindings
+      - roles
+      - rolebindings
     verbs:
       - create
       - list
@@ -142,18 +135,18 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: thinruntime-clusterrolebinding
+  name: cachefsruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: thinruntime-controller
+  name: cachefsruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: thinruntime-controller
+    name: cachefsruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: thinruntime-controller
+  name: cachefsruntime-controller
   namespace: {{ include "fluid.namespace" . }}
