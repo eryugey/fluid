@@ -1,0 +1,127 @@
+# This should not be modified in the usual case.
+fullnameOverride: cachefs
+
+owner:
+  enabled: false
+  name: ""
+  kind: ""
+  uid: ""
+  apiVersion: ""
+  blockOwnerDeletion: false
+  controller: false
+
+##
+## Example:
+##   - key: "toleration=key"
+##     operator: "Equal"
+##     value: "value"
+##     effect: "NoSchedule"
+##
+## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: []
+
+tieredstore:
+  path: /dev/shm
+
+# Docker Image
+image: kangaroo-registry.cn-hangzhou.cr.aliyuncs.com/storage/cachefs
+imageTag: 1.0.5-1.5-dev
+imagePullPolicy: IfNotPresent
+
+## MASTER ##
+master:
+  enabled: false
+  image: "redis"
+  imageTag: "7.2-alpine"
+  imagePullPolicy: ""
+  nodeSelector: ""
+  envs: []
+  hostNetwork: false
+  resources:
+    requests:
+#      cpu: "0.5"
+#      memory: "1G"
+    limits:
+#      cpu: "4"
+#      memory: "4G"
+  labels: {}
+  annotations: {}
+  volumes: []
+  volumeMounts: []
+
+## WORKER ##
+worker:
+  image: ""
+  imageTag: ""
+  imagePullPolicy: ""
+  nodeSelector: ""
+  cacheDir: ""
+  envs: []
+  command: ""
+  mountPath: /mnt/cachefs
+  statCmd: "stat -c %i /mnt/cachefs"
+  podManagementPolicy: Parallel
+  hostNetwork: false
+  resources:
+    requests:
+#      cpu: "0.5"
+#      memory: "1G"
+    limits:
+#      cpu: "4"
+#      memory: "4G"
+  replicas: 0
+  labels: {}
+  annotations: {}
+  volumes: []
+  volumeMounts: []
+
+
+configs:
+  name: ""
+  accesskeySecret: ""
+  accesskeySecretKey: ""
+  secretkeySecret: ""
+  secretkeySecretKey: ""
+  bucket: ""
+  metaurlSecret: ""
+  metaurlSecretKey: ""
+  storage: ""
+  formatCmd: ""
+  importCmd: ""
+
+## FUSE ##
+
+fuse:
+  hostNetwork: false
+  subPath: ""
+  criticalPod: false
+  enabled: true
+  image: kangaroo-registry.cn-hangzhou.cr.aliyuncs.com/storage/cachefs
+  imageTag: 1.0.5-1.5-dev
+  imagePullPolicy: IfNotPresent
+  envs: []
+  nodeSelector: {}
+  # Mount path in the host
+  mountPath: /mnt/cachefs
+  cacheDir: ""
+  hostMountPath: /mnt/cachefs
+  command: "/bin/cachefs mount /mnt/cachefs"
+  statCmd: "stat -c %i /mnt/cachefs"
+  updateStrategy:
+    type: OnDelete
+  resources:
+    requests:
+#      cpu: "0.5"
+#      memory: "1G"
+    limits:
+#      cpu: "4"
+#      memory: "4G"
+  labels: {}
+  annotations: {}
+  volumes: []
+  volumeMounts: []
+
+runtimeIdentity:
+  namespace: default
+  name: cachefs

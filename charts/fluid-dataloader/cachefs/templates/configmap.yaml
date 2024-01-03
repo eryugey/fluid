@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-data-load-script" .Release.Name }}
+  labels:
+    release: {{ .Release.Name }}
+    role: dataload-job
+data:
+  dataloader.distributedLoad: |
+    #!/usr/bin/env bash
+
+    ns="$POD_NAMESPACE"
+    podNames="$POD_NAMES"
+    podNames=(${podNames//:/ })
+    podName="${podNames[0]}"
+
+    function import() {
+        echo "cachefs import $IMPORT_OPTIONS $METAURL $IMPORT_SOURCE starts"
+        time /usr/local/bin/kubectl -n $ns exec -it "$podName" -- timeout $TIMEOUT /bin/cachefs import $IMPORT_OPTIONS $METAURL $IMPORT_SOURCE
+        echo "cachefs import $IMPORT_OPTIONS $IMPORT_SOURCE ends"
+
+        # wait for cachefs to be refreshed
+        sleep 15
+    }
+
+    function warmup() {
+        paths="$DATA_PATH"
+        paths=(${paths// / })
+
+        targetPath=""
+        for((j=0;j<${#paths[@]};j++)) do
+          targetPath="$targetPath $MOUNTPATH${paths[j]}"
+        done
+
+        checkPathResult=$(/usr/local/bin/kubectl -n $ns exec -it "$podName" -- timeout 30s /bin/ls $targetPath |& head -3)
+        strUnexistence="No such file or directory"
+        if [[ $checkPathResult =~ $strUnexistence ]]; then
+            echo -e "dataLoad failed because some paths not exist."
+            exit 1
+        fi
+
+        echo -e "cachefs warmup $targetPath starts"
+        time /usr/local/bin/kubectl -n $ns exec -it "$podName" -- timeout $TIMEOUT /bin/cachefs warmup $targetPath
+        echo -e "cachefs warmup $targetPath ends"
+    }
+
+    import
+    if [ "$LOAD_METADATA_ONLY" != "true" ]; then
+        warmup
+    fi
