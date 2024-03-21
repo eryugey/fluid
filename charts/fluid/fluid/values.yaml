@@ -26,6 +26,7 @@ dataset:
     - operator: Exists
   controller:
     image: eci-nydus-registry.cn-hangzhou.cr.aliyuncs.com/fluid/dataset-controller:v1.0.0-71dd781b4ec2
+    imagePullPolicy: Always
 
 csi:
   tolerations:
@@ -156,6 +157,7 @@ runtime:
     runtimeWorkers: 3
     controller:
       image: eci-nydus-registry.cn-hangzhou.cr.aliyuncs.com/fluid/cachefsruntime-controller:v1.0.0-71dd781b4ec2
+      imagePullPolicy: Always
     fuse:
       image: kangaroo-registry.cn-hangzhou.cr.aliyuncs.com/storage/cachefs:1.0.5-2.1
 
