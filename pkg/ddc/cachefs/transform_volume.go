@@ -67,11 +67,13 @@ func (c *CacheFSEngine) transformWorkerVolumes(runtime *datav1alpha1.CacheFSRunt
 		}
 		value.Worker.VolumeMounts = append(value.Worker.VolumeMounts, volumeMount)
 
+		dir := corev1.HostPathDirectory
 		volume := corev1.Volume{
 			Name: "data-source",
 			VolumeSource: corev1.VolumeSource{
 				HostPath: &corev1.HostPathVolumeSource{
 					Path: subpath,
+					Type: &dir,
 				},
 			},
 		}
