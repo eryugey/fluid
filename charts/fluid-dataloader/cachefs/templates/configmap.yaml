@@ -8,6 +8,8 @@ metadata:
 data:
   dataloader.distributedLoad: |
     #!/usr/bin/env bash
+    set -x
+    echo "===zhaoshang test==="
 
     ns="$POD_NAMESPACE"
     podNames="$POD_NAMES"
