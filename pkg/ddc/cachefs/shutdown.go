@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -151,20 +152,27 @@ func (c *CacheFSEngine) cleanupCache() (err error) {
 	if err != nil {
 		return err
 	}
+
+	var wg sync.WaitGroup
 	for _, pod := range pods {
-		fileUtils := operations.NewCacheFileUtils(pod.Name, common.CacheFSWorkerContainer, c.namespace, c.Log)
+		wg.Add(1)
+		go func(pod corev1.Pod) {
+			defer wg.Done()
 
-		c.Log.Info("Remove cache in worker pod", "pod", pod.Name, "cache", cacheDirs)
-
-		cacheDirsToBeDeleted := []string{}
-		for _, cacheDir := range cacheDirs {
-			cacheDirsToBeDeleted = append(cacheDirsToBeDeleted, filepath.Join(cacheDir, uuid, "raw/chunks"))
-		}
-		err := fileUtils.DeleteCacheDirs(cacheDirsToBeDeleted)
-		if err != nil {
-			return err
-		}
+			fileUtils := operations.NewCacheFileUtils(pod.Name, common.CacheFSWorkerContainer, c.namespace, c.Log)
+			c.Log.Info("Remove cache in worker pod", "pod", pod.Name, "cache", cacheDirs)
+			cacheDirsToBeDeleted := []string{}
+			for _, cacheDir := range cacheDirs {
+				cacheDirsToBeDeleted = append(cacheDirsToBeDeleted, filepath.Join(cacheDir, uuid, "raw/chunks"))
+			}
+			err := fileUtils.DeleteCacheDirs(cacheDirsToBeDeleted)
+			if err != nil {
+				c.Log.Error(err, "Failed to delete cache directories", "pod", pod.Name, "cacheDirsToBeDeleted", cacheDirsToBeDeleted)
+			}
+		}(pod)
 	}
+	wg.Wait()
+
 	return nil
 }
 
